@@ -748,10 +748,10 @@ namespace PokemonGo.RocketAPI.GUI
 
             foreach (var pokeStop in fortDatas)
             {
-                await Task.Delay(1000);
+                await Task.Delay(2000);
                 var update = await _client.UpdatePlayerLocation(pokeStop.Latitude, pokeStop.Longitude, _settings.DefaultAltitude); // Redundant?
                 UpdateMap(pokeStop.Latitude, pokeStop.Longitude);
-                await Task.Delay(1000);
+                await Task.Delay(2000);
                 var fortInfo = await _client.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
 
                 boxPokestopName.Text = fortInfo.Name;
@@ -759,7 +759,7 @@ namespace PokemonGo.RocketAPI.GUI
                 boxPokestopCount.Text = _pokestopsCount.ToString();
                 count++;
 
-                await Task.Delay(1000);
+                await Task.Delay(2000);
                 var fortSearch = await _client.SearchFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
                 Logger.Write($"Loot -> Gems: { fortSearch.GemsAwarded}, Eggs: {fortSearch.PokemonDataEgg} Items: {StringUtils.GetSummedFriendlyNameOfItemAwardList(fortSearch.ItemsAwarded)}");
                 Logger.Write("Gained " + fortSearch.ExperienceAwarded + " XP.");
@@ -768,10 +768,9 @@ namespace PokemonGo.RocketAPI.GUI
                 _totalExperience += fortSearch.ExperienceAwarded;
 
                 await GetCurrentPlayerInformation();
-                await Task.Delay(1000);
+                await Task.Delay(2000);
                 Logger.Write("Attempting to Capture Nearby Pokemons.");
                 await ExecuteCatchAllNearbyPokemons();
-                Logger.Write("Mulch fix....");
 
                 if (!_isFarmingActive)
                 {
@@ -780,7 +779,7 @@ namespace PokemonGo.RocketAPI.GUI
                 }                    
 
                 Logger.Write("Waiting before moving to the next Pokestop.");
-                await Task.Delay(GUISettings.Default.pokestopDelay * 1000);
+                await Task.Delay(GUISettings.Default.pokestopDelay * 2500);
             }
         }
 
@@ -815,11 +814,9 @@ namespace PokemonGo.RocketAPI.GUI
                 {
                     if (encounterPokemonResponse?.CaptureProbability.CaptureProbability_.First() < (GUISettings.Default.minBerry / 100))
                     {
-                        await Task.Delay(2000);
                         await UseBerry(pokemon.EncounterId, pokemon.SpawnpointId);
                     }
 
-                    await Task.Delay(2000);
                     caughtPokemonResponse = await _client.CatchPokemon(pokemon.EncounterId, pokemon.SpawnpointId, pokemon.Latitude, pokemon.Longitude, pokeball);
                     await Task.Delay(2000);
                 }
