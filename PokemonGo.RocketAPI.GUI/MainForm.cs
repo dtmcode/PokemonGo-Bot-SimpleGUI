@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -748,15 +748,18 @@ namespace PokemonGo.RocketAPI.GUI
 
             foreach (var pokeStop in fortDatas)
             {
+                await Task.Delay(1000);
                 var update = await _client.UpdatePlayerLocation(pokeStop.Latitude, pokeStop.Longitude, _settings.DefaultAltitude); // Redundant?
                 UpdateMap(pokeStop.Latitude, pokeStop.Longitude);
+                await Task.Delay(1000);
                 var fortInfo = await _client.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
 
                 boxPokestopName.Text = fortInfo.Name;
                 boxPokestopInit.Text = count.ToString();
                 boxPokestopCount.Text = _pokestopsCount.ToString();
-                count++;                               
+                count++;
 
+                await Task.Delay(1000);
                 var fortSearch = await _client.SearchFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
                 Logger.Write($"Loot -> Gems: { fortSearch.GemsAwarded}, Eggs: {fortSearch.PokemonDataEgg} Items: {StringUtils.GetSummedFriendlyNameOfItemAwardList(fortSearch.ItemsAwarded)}");
                 Logger.Write("Gained " + fortSearch.ExperienceAwarded + " XP.");
@@ -765,8 +768,10 @@ namespace PokemonGo.RocketAPI.GUI
                 _totalExperience += fortSearch.ExperienceAwarded;
 
                 await GetCurrentPlayerInformation();
+                await Task.Delay(1000);
                 Logger.Write("Attempting to Capture Nearby Pokemons.");
                 await ExecuteCatchAllNearbyPokemons();
+                Logger.Write("Mulch fix....");
 
                 if (!_isFarmingActive)
                 {
@@ -782,17 +787,22 @@ namespace PokemonGo.RocketAPI.GUI
         private async Task ExecuteCatchAllNearbyPokemons()
         {
             var mapObjects = await _client.GetMapObjects();
-
+            await Task.Delay(2000);
             var pokemons = mapObjects.MapCells.SelectMany(i => i.CatchablePokemons);
-
+            await Task.Delay(2000);
             var mapPokemons = pokemons as IList<MapPokemon> ?? pokemons.ToList();
             Logger.Write("Found " + mapPokemons.Count<MapPokemon>() + " Pokemons in the area.");
             foreach (var pokemon in mapPokemons)
-            {   
+            {
+                await Task.Delay(2000);
                 var update = await _client.UpdatePlayerLocation(pokemon.Latitude, pokemon.Longitude, _settings.DefaultAltitude); // Redundant?
+                await Task.Delay(2000);
                 var encounterPokemonResponse = await _client.EncounterPokemon(pokemon.EncounterId, pokemon.SpawnpointId);
+                await Task.Delay(2000);
                 var pokemonCp = encounterPokemonResponse?.WildPokemon?.PokemonData?.Cp;
+                await Task.Delay(2000);
                 var pokemonIv = Logic.Logic.CalculatePokemonPerfection(encounterPokemonResponse?.WildPokemon?.PokemonData).ToString("0.00") + "%";
+                await Task.Delay(2000);
                 var pokeball = await GetBestBall(pokemonCp);
 
                 Logger.Write($"Fighting {pokemon.PokemonId} with Capture Probability of {(encounterPokemonResponse?.CaptureProbability.CaptureProbability_.First())*100:0.0}%");
@@ -805,9 +815,11 @@ namespace PokemonGo.RocketAPI.GUI
                 {
                     if (encounterPokemonResponse?.CaptureProbability.CaptureProbability_.First() < (GUISettings.Default.minBerry / 100))
                     {
+                        await Task.Delay(2000);
                         await UseBerry(pokemon.EncounterId, pokemon.SpawnpointId);
                     }
 
+                    await Task.Delay(2000);
                     caughtPokemonResponse = await _client.CatchPokemon(pokemon.EncounterId, pokemon.SpawnpointId, pokemon.Latitude, pokemon.Longitude, pokeball);
                     await Task.Delay(2000);
                 }
